@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.franchise.mapper.CommentMapper">
+
+	<sql id="commentColumns">
+		  idx
+		, board_idx
+		, content
+		, writer
+		, delete_yn
+		, insert_time
+		, update_time
+		, delete_time
+	</sql>
+	<insert id="insertComment" parameterType="CommentDTO">
+		INSERT INTO comment (
+			<include refid="commentColumns" />
+		) VALUES (
+			  #{idx}
+			, #{boardIdx}
+			, #{content}
+			, #{writer}
+			, IFNULL(#{deleteYn}, 'N')
+			, NOW()
+			, NULL
+			, NULL
+		)
+	</insert>
+	<select id="selectCommentDetail" parameterType="long" resultType="CommentDTO">
+		SELECT
+			<include refid="commentColumns" />
+		FROM
+			comment
+		WHERE
+			delete_yn = 'N'
+		AND
+			idx = #{idx}
+	</select>
+	<update id="updateComment" parameterType="CommentDTO">
+		UPDATE comment
+		SET
+			  update_time = NOW()
+			, content = #{content}
+			, writer = #{writer}
+		WHERE
+			idx = #{idx}
+	</update>
+	<update id="deleteComment" parameterType="long">
+		UPDATE comment
+		SET
+			  delete_yn = 'Y'
+			, delete_time = NOW()
+		WHERE
+			idx = #{idx}
+	</update>
+	<select id="selectCommentList" parameterType="CommentDTO" resultType="CommentDTO">
+		SELECT
+			<include refid="commentColumns" />
+		FROM
+			comment
+		WHERE
+			delete_yn = 'N'
+		AND
+			board_idx = #{boardIdx}
+		ORDER BY
+			idx DESC,
+			insert_time DESC
+	</select>
+	<select id="selectCommentTotalCount" parameterType="CommentDTO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			comment
+		WHERE
+			delete_yn = 'N'
+		AND
+			board_idx = #{boardIdx}
+	</select>
+
+</mapper>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!-- 타임리프 th 속성을 사용하기 위해 네임스페이스 선언 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="board/layout/basic">
+	<!-- 속성에 이름을 지정하여 타이틀을 동적 처리 -->
+	<th:block layout:fragment="title">
+		<title>Franchise</title>
+	</th:block>
+	
+	
+	<!-- 리스트 페이지의 실제 Content가 포함된 영역 -->
+	<!-- 보통 테이블 형태로 처리 -->
+	<th:block layout:fragment="content">
+		<div class="table-responsive clearfix" th:object="${info}">
+		
+			<table class="table table-hover">
+				<tr align = "center" bgcolor="skybule">
+					<td>업종</td>
+					<td>브랜드</td>
+					<td>상호</td>
+					<td>가맹사업 개시일</td>
+					<td>가맹사업 년월수</td>
+				</tr>
+				<tr>
+					<td th:text="*{upjong}"/>
+					<td th:text="*{brandName}"/>
+					<td th:text="*{businessName}"/>
+					<td th:text="*{openDate}"/>
+					<td th:text="*{openPeriod}"/>
+				</tr>
+				<tr align = "center" bgcolor="skybule">
+					<td>가맹점수</td>
+					<td>가맹본부 임직원수</td>
+					<td>신규개점</td>
+					<td>계약종료</td>
+					<td>계약해지</td>
+				</tr>
+				<tr>
+					<td th:text="*{shopNum}"/>
+					<td th:text="*{employeeNum}"/>
+					<td th:text="*{newShopNum}"/>
+					<td th:text="*{endShopNum}"/>
+					<td th:text="*{cancelShopNum}"/>
+					
+				</tr>
+				<tr align = "center" bgcolor="skybule">
+					<td>명의변경</td>
+					<td>평균매출액</td>
+					<td>면적당 평균매출액</td>
+					<td>가입비</td>
+					<td>교육비</td>
+				</tr>
+				<tr>
+					<td th:text="*{changeShopNum}"/>
+					<td th:text="*{avgSales}"/>
+					<td th:text="*{areaAvgSales}"/>
+					<td th:text="*{initiationFee}"/>
+					<td th:text="*{educationFee}"/>
+					
+				</tr>
+				<tr align = "center" bgcolor="skybule">
+					<td>보증금</td>
+					<td>기타비용</td>
+					<td>총비용</td>
+					<td>면적비용</td>
+					<td>기준면적</td>
+				</tr>
+				<tr>
+					<td th:text="*{deposit}"/>
+					<td th:text="*{etcFee}"/>
+					<td th:text="*{feeSum}"/>
+					<td th:text="*{areaFee}"/>
+					<td th:text="*{standardArea}"/>
+				</tr>
+
+			</table>
+			
+			<!-- 이전 페이지 정보 유지하기 -->
+			<!-- th:object 속성을 통해 *{ } 표현식으로 메서드명과 변수명 만으로 컨트롤러에서 전달받은 객체에 접근 가능 -->
+			<div class="btn_wrap text-center" th:object="${params}">
+				<a th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=*{upjong}|" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+			</div>
+		</div>
+	</th:block>
+	
+	<th:block layout:fragment="script">
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			function movePage(uri, queryString) {
+				location.href = uri + queryString;
+			}
+			
+			/* [-메인 검색과 드롭다운 검색을 처리하는 함수-] */
+			function searchBoard(form) {
+				/* dropdown이 아닌 메인 검색 키워드로 검색했을 때 */
+				if (isEmpty(form)==true) {
+					var searchKeyword = document.getElementById("mainSearchKeyword");
+					if (isEmpty(searchKeyword.value) == true) {
+						alert("키워드를 입력해 주세요.");
+						searchKeyword.focus();
+						return false;
+					}
+					form = document.getElementById("searchForm");
+					form.searchKeyword.value = searchKeyword.value;
+					console.log(searchKeyword.value);
+					form.submit();
+				}
+				if (isEmpty(form.searchKeyword.value) == true) {
+					alert("키워드를 입력해 주세요.");
+					searchKeyword.focus();
+					return false;
+				}
+			}
+			
+			/*]]>*/
+		</script>
+	</th:block>
+</html>

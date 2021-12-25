@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- 타임리프 th 속성을 사용하기 위해 네임스페이스 선언 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="board/layout/basic">
+	<!-- 속성에 이름을 지정하여 타이틀을 동적 처리 -->
+	<th:block layout:fragment="title">
+		<title>Franchise</title>
+	</th:block>
+	
+	<!-- 페이지마다 content 영역의 형태가 다르기 때문 -->
+	<th:block layout:fragment="content">
+		<div class="card-content">
+			<form class="form-horizontal" th:action="@{/board/register.do}" th:object="${board}" method="post" onsubmit="return registerBoard(this)">
+				<input type="hidden" th:if="*{idx != null and idx > 0}" th:field="*{idx}"/>
+				
+				<div class="form-group">
+					<label for="noticeYn" class="col-sm-2 control-label">공지글 설정</label>
+					<div class="col-sm-10" style="margin-top: 10px;">
+						<input type="checkbox" th:value="*{noticeYn}" id="noticeYn" name="noticeYn" th:checked="*{#strings.equals( noticeYn , 'Y' )}"/>
+					</div>
+				</div>
+				
+				
+				<div class= "form-group">
+					<label for="title" class="col-sm-2 control-label">제목</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{title}" class = "form-control" placeholder="제목을 입력해 주세요."/>
+					</div>
+				</div>
+				
+				<div class= "form-group">
+					<label for="writer" class="col-sm-2 control-label">이름</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{writer}" class = "form-control" placeholder="이름을 입력해 주세요."/>
+					</div>
+				</div>				
+				
+				<div class= "form-group">
+					<label for="content" class="col-sm-2 control-label">내용</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{content}" class = "form-control" placeholder="내용을 입력해 주세요."/>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label for="gubun1" class="col-sm-2 control-label">커뮤니티 분류1</label>
+					<div class="col-sm-10">
+						<select class="form-control" id="gubun1" name="gubun1" onchange="gubunChange(this)">
+							<option>선택해주세요.</option>
+							<option value="info" >업종별 정보</option>
+							<option value="story">사장님들의 Story</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label for="gubun2" class="col-sm-2 control-label">커뮤니티 분류2</label>
+						<div class="col-sm-10">
+							<select class="form-control" th:field="*{gubun}" id="gubun2">	
+								<option th:value="s">선택해주세요.</option>
+							</select>
+						</div>
+				</div>
+				
+				<div class="btn_wrap text-center" th:object="${params}">
+					<a th:href="|@{/board/list.do}*{makeQueryString(currentPageNo)}|" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+					<button type="submit" class="btn btn-primary waves-effect waves-light">저장하기</button>
+				</div>
+			</form>
+		</div>
+	</th:block>
+	
+	<th:block layout:fragment="script">
+		<script th:inline="javascript">
+		// 자바스크립트 함수 사용을 위해 CDATA로 묶어 특수문자를 문자열로 처리
+		/*<![CDATA[*/
+		
+		// select 태그 동적 변경
+		function gubunChange(e) {
+			var info = ["한식", "중/일식","분식","패스트푸드","카페","치킨","제과제빵","서양식","기타"];
+			var story = ["성공/실패", "자유", "상권", "예비사장님"]
+			var target = document.getElementById("gubun2");
+						
+			if (e.value == "info"){
+			
+				var arr = info;
+				
+				target.options.length = 0;
+				
+				for (i in arr) {
+					var opt = document.createElement("option");
+					opt.setAttribute("value" ,arr[i]);
+					opt.innerHTML = arr[i];
+					target.appendChild(opt);
+				}
+			}
+
+			else if(e.value == "story"){ 
+				var arr = story;
+				
+				target.options.length = 0;
+				
+				for (i in arr) {
+					var opt = document.createElement("option");
+					opt.setAttribute("th:value" ,arr[i]);
+					opt.innerHTML = arr[i];
+					target.appendChild(opt);
+				}
+			}	
+		}
+		
+		function registerBoard(form) {
+			form.noticeYn.value = form.noticeYn.checked == false ? 'N' : 'Y';
+			form.secretYn.value = form.secretYn.checked == false ? 'N' : 'Y';
+			
+			// isValid: 필수적으로 입력되어야 하는 필드의 유효성 검사
+			var result = (
+						   isValid(form.title, "제목", null, null)
+						&& isValid(form.writer, "이름", null, null)
+						&& isValid(form.content, "내용", null, null)
+			);
+			
+			if (result == false) {
+				return false;
+			}
+			
+			var idx = /*[[ ${board.idx} ]]*/ null;
+				if (isEmpty(idx) == false) {
+					var queryString = /*[[ ${params.makeQueryString(params.currentPageNo)} ]]*/ null;
+			
+					/*[- 쿼리 스트링을 오브젝트 형태로 변환 -]*/
+					queryString = new URLSearchParams(queryString);
+					queryString.forEach(function(value, key) {
+						if (isEmpty(value) == false) {
+							$(form).append('<input type="hidden" name="' + key + '" value="' + value + '" />');
+						}
+					});
+				}
+			}
+
+			/*]]>*/
+		</script>
+	</th:block>
+	
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- 타임리프 th 속성을 사용하기 위해 네임스페이스 선언 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="board/layout/basic">
+	<!-- 속성에 이름을 지정하여 타이틀을 동적 처리 -->
+	<th:block layout:fragment="title">
+		<title>Franchise</title>
+	</th:block>
+	
+	<!-- 브랜드 리스트에서 특정 브랜드 검색할 수 있는 영역 -->
+	<th:block layout:fragment="search">
+		<div th:replace="board/fragments/common :: searchBrand"></div>
+	</th:block>
+	
+	
+	<!-- 브랜드리스트 페이지의 실제 Content가 포함된 영역 -->
+	<!-- uri 마지막에 upjong 추가 -->
+	<th:block layout:fragment="content">
+		<!-- 업종 별 구분 -->
+			<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			  <div class="collapse navbar-collapse" id="navbarText" th:object="${params}">
+			    <ul class="navbar-nav mr-auto">
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}|">전체</a>			      	
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=한식|">한식</a>			      	
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=중/일식|">중/일식</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=분식|">분식</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=패스트푸드|">패스트푸드</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=카페|">카페</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=치킨|">치킨</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=제과제빵|">제과제빵</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=서양식|">서양식</a>
+			      </li>
+			      <li class="nav-item">
+			        <a class="nav-link" th:href="|@{/franchise/infoList.do}*{makeQueryString(currentPageNo)}&upjong=기타|">기타</a>
+			      </li>
+			    </ul>
+			  </div>
+			</nav>
+	
+		<div class="table-responsive clearfix">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>번호</th>
+						<th>브랜드명</th>
+						<th>가맹사업 년수</th>
+						<th>평균매출액</th>
+						<th>창업비용</th>
+					</tr>
+				</thead>
+				<tbody>
+				<!-- if-else 문 -->
+					<!-- th:each => 자바의 forEach와 같음 -->
+					<tr th:if="${not #lists.isEmpty(infoList)}" th:each="row : ${infoList}">
+						<td scope="row" th:text="${row.id}"></td>
+						<td class="text-left">
+							<!-- 기본 uri + 업종(뒤로가기 버튼 클릭 시 제대로된 페이징을 위함) + idx -->
+							<a th:href="|@{/franchise/infoDetail.do}${params.makeQueryString(params.currentPageNo)}&upjong=${row.upjong}&idx=${row.id}|" th:text="${row.brandName}"></a>
+						</td>
+						<!-- 가맹사업 년월수 -->
+						<td th:text="${row.openDate}"></td>
+						<!-- 평균매출액 -->
+						<td th:text="${row.avgSales}"></td>
+						<!-- 창업비용 -->
+						<td th:text = "${row.feeSum}"></td>
+					</tr>
+					<!-- 일반 else문과 달리, th:if에 들어가는 조건과 동일한 조건을 지정해야 함 -->
+					<tr th:unless="${not #lists.isEmpty(infoList)}">
+						<td colspan="5">조회된 결과가 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<!-- 특정 페이지로 이동할 수 있는 페이징 영역 -->
+			<th:block layout:fragment="paging">
+				<nav th:replace="board/fragments/common :: paginationBrand"></nav>
+			</th:block>
+		</div>
+	</th:block>
+	
+	<th:block layout:fragment="script">
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			
+			// 페이징할 때도 업종 구분을 위함
+			function movePage(uri, queryString, upjong) {
+				// upjong 파라미터 값이 null이면 upjong uri 제거
+				if (upjong == null){
+					location.href = uri + queryString;
+				}		
+				else {		
+					location.href = uri + queryString + "&upjong="+upjong;
+				}
+			}
+			
+			/* [-메인 검색과 드롭다운 검색을 처리하는 함수-] */
+			function searchInfo(form) {
+				/* dropdown이 아닌 메인 검색 키워드로 검색했을 때 */
+				if (isEmpty(form)==true) {
+					var searchKeyword = document.getElementById("mainSearchKeyword");
+					if (isEmpty(searchKeyword.value) == true) {
+						alert("키워드를 입력해 주세요.");
+						searchKeyword.focus();
+						return false;
+					}
+					form = document.getElementById("searchForm2");
+					form.searchKeyword.value = searchKeyword.value;
+					console.log(searchKeyword.value);
+					form.submit();
+				}
+				if (isEmpty(form.searchKeyword.value) == true) {
+					alert("키워드를 입력해 주세요.");
+					searchKeyword.focus();
+					return false;
+				}
+			}
+			
+			/*]]>*/
+		</script>
+	</th:block>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+	<body th:fragment="main-body">
+
+		<!-- 메인 네비게이션 바 -->
+		<div class="fixed-navbar">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			  <a class="navbar-brand" href="/franchise/infoList.do"><h3>프랜차이즈 정보 및 커뮤니티</h3></a>
+			  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+			    <span class="navbar-toggler-icon"></span>
+			  </button>
+			  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+			    <ul class="navbar-nav">
+			      <li class="nav-item dropdown">
+			        <a class="nav-link" href="/franchise/infoList.do" id="navbarDropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+			          브랜드 정보
+			        </a>
+			      </li>
+			      <li class="nav-item dropdown">
+			        <a class="nav-link" href="/board/list.do" id="navbarDropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+			          커뮤니티
+			        </a>
+			      </li>
+			    </ul>
+			  </div>
+			</nav>
+		</div>	
+	  	
+		<!-- modal 영역 채우기 -->
+		<th:block layout:fragment="modal"></th:block>
+		
+		<div id="wrapper">
+			<div class="main-content">
+				<div class="row row-inline-block small-spacing">
+					<div class="col-xs-12">
+						<div class="box-content">
+							<div class="clearfix">
+								<h4 class="box-title pull-left"></h4>
+								<th:block layout:fragment="search"></th:block>
+							</div>
+							<th:block layout:fragment="navbar"></th:block>
+							<th:block layout:fragment="content"></th:block>
+							<th:block layout:fragment="paging"></th:block>
+						</div>
+						<th:block layout:fragment="add-content"></th:block>
+					</div>
+				</div>
+				<footer class="footer">
+					<ul class="list-inline">
+						<li>2021 Web DB Project By YSM</li>
+					</ul>
+				</footer>
+			</div>
+		</div>
+		
+		<script th:src="@{/scripts/jquery.min.js}"></script>
+		<script th:src="@{/plugin/bootstrap/js/bootstrap.min.js}"></script>
+		<script th:src="@{/plugin/mCustomScrollbar/jquery.mCustomScrollbar.min.js}"></script>
+		<script th:src="@{/plugin/common/moment.js}"></script>
+		<script th:src="@{/scripts/main.js}"></script>
+		<script th:src="@{/scripts/common.js}"></script>
+		
+		<th:block layout:fragment="script"></th:block>
+	</body>
+</html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.franchise.mapper.InfoMapper">
+	
+	<!-- 브랜드 정보 리스트 보여줄 때 컬럼 -->
+	<sql id="infoSimpleColumns">
+		  id
+		, upjong
+		, brand_name
+		, open_date
+		, avg_sales
+		, fee_sum
+	</sql>
+	
+	<!-- 브랜드 상세 정보 보여줄 때 컬럼 -->
+	<sql id="infoDetailColumns">
+		  id
+		, upjong
+		, brand_name
+		, business_name
+		, open_date
+		, open_period
+		, shop_num
+		, employee_num
+		, new_shop_num
+		, end_shop_num
+		, cancel_shop_num
+		, change_owner_num
+		, avg_sales
+		, area_avg_sales
+		, initiation_fee
+		, education_fee
+		, deposit
+		, etc_fee
+		, fee_sum
+		, area_fee
+		, standard_area
+	</sql>
+	
+	<!-- 브랜드 상세 조회 -->
+	<select id="selectInfoDetail" parameterType="long" resultType="InfoDTO">
+		SELECT
+			<include refid="infoDetailColumns"/>
+		FROM
+			franchise_info
+		WHERE
+			id = #{idx}
+	</select>
+	
+	<!-- 브랜드 리스트 조회 -->
+	<select id="selectInfoList" parameterType="InfoDTO" resultType="InfoDTO">
+		SELECT
+			<include refid="infoSimpleColumns" />
+		FROM
+			franchise_info
+		<!-- params에 upjong 값 있을 때 시행 -->
+		<if test="upjong != null and upjong != ''">
+			where upjong = #{upjong}
+		</if>
+		<include refid="CommonMapper.search1" />
+		<include refid="CommonMapper.paging" />
+	</select>
+
+	<!-- 브랜드 전체 개수 조회 -->
+	<select id="selectInfoTotalCount" parameterType="InfoDTO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			franchise_info
+		<if test="upjong != null and upjong != ''">
+			where upjong = #{upjong}
+		</if>
+		<include refid="CommonMapper.search1" />
+	</select>
+</mapper>

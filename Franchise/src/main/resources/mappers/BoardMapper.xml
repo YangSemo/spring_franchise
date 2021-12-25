@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.franchise.mapper.BoardMapper">
+	<sql id="boardColumns">
+		  idx
+		, title
+		, content
+		, writer
+		, view_cnt
+		, notice_yn
+		, secret_yn
+		, delete_yn
+		, insert_time
+		, update_time
+		, delete_time
+		, gubun
+	</sql>
+	
+	<!-- 게시판 정보 삽입 -->
+	<insert id="insertBoard" parameterType="BoardDTO">
+		INSERT INTO board(
+			<include refid="boardColumns"/>
+		) VALUES (
+			  #{idx}
+			, #{title}
+			, #{content}
+			, #{writer}
+			, 0
+			, IFNULL(#{noticeYn}, 'N')
+			, IFNULL(#{secretYn}, 'N')
+			, 'N'
+			, NOW()
+			, NULL
+			, NULL
+			, #{gubun}		
+		)
+	</insert>
+	
+	<!-- 상세 게시판 정보 조회 -->
+	<select id="selectBoardDetail" parameterType="long" resultType="BoardDTO">
+		SELECT
+			<include refid="boardColumns"/>
+		FROM
+			board
+		WHERE
+			delete_yn = 'N'
+		AND
+			idx = #{idx}
+	</select>
+	
+	<!-- 조회수 증가 -->
+	<update id="updateViewCnt" parameterType="Long">
+		UPDATE board
+		SET
+			view_cnt=view_cnt+1
+		WHERE
+			idx = #{idx}
+	</update>
+	
+	<!-- 게시판 정보 수정 -->
+	<update id="updateBoard" parameterType="BoardDTO">
+		UPDATE board
+		SET
+			  update_time = NOW()
+			, title = #{title}
+			, content = #{content}
+			, writer = #{writer}
+			, notice_yn = IFNULL(#{noticeYn}, 'N')
+			, secret_yn = IFNULL(#{secretYn}, 'N')
+		WHERE
+			idx = #{idx}
+	</update>
+	
+	<!-- 게시판 삭제 => 실제 삭제X -->
+	<update id="deleteBoard" parameterType="long">
+		UPDATE board
+		SET
+			  delete_yn = 'Y'
+			, delete_time = NOW()
+		WHERE
+			idx = #{idx}
+	</update>
+	
+	<!-- 게시판 리스트 조회 -->
+	<select id="selectBoardList" parameterType="BoardDTO" resultType="BoardDTO">
+		SELECT
+			<include refid="boardColumns" />
+		FROM
+			board
+		WHERE
+			delete_yn = 'N'
+		<if test="gubun != null and gubun != ''">
+			AND gubun = #{gubun}
+		</if>
+		<include refid="CommonMapper.search" />
+		ORDER BY
+			notice_yn ASC,
+			idx DESC,
+			insert_time DESC
+		<include refid="CommonMapper.paging" />
+	</select>
+	
+	<!-- 조회수를 기준으로 상위 10개 베스트글 선정 -->
+	<select id="selectBestBoard" parameterType="BoardDTO" resultType="BoardDTO">
+		select
+			<include refid="boardColumns" />
+		from
+			board
+		where
+			notice_yn='N'
+		order by
+			view_cnt DESC,
+			insert_time DESC
+		limit
+			10
+	</select>
+
+	<!-- 전체 게시판 수 조회 -->
+	<select id="selectBoardTotalCount" parameterType="BoardDTO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			board
+		WHERE
+			delete_yn = 'N'
+		<if test="gubun != null and gubun != ''">
+			AND gubun = #{gubun}
+		</if>
+		<include refid="CommonMapper.search" />
+	</select>
+</mapper>
